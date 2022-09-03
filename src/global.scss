@@ -36,6 +36,8 @@ ion-header.md {
 }
 
 
+
+
 #inbox-list{
     --ion-background-color: white;
 }
@@ -48,5 +50,10 @@ ion-button{
 ion-content{
     --ion-background-color: #1e1e1e;
 }
+
+.default-alert{
+    --background: #1e1e1e;  
+    --border-radius:5px!important;
+   }
 
 }
