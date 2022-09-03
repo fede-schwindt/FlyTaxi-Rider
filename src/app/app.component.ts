@@ -1,4 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, NgZone } from '@angular/core';
+import { NavController, Platform } from '@ionic/angular';
+import { SplashScreen } from '@capacitor/splash-screen';
+import { AvatarService } from './services/avatar.service';
+import { StatusBar, Style } from '@capacitor/status-bar';
+import { timer } from 'rxjs';
+
+
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
@@ -6,13 +13,60 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   public appPages = [
-    { title: 'Inbox', url: '/folder/Inbox', icon: 'mail' },
-    { title: 'Outbox', url: '/folder/Outbox', icon: 'paper-plane' },
-    { title: 'Favorites', url: '/folder/Favorites', icon: 'heart' },
-    { title: 'Archived', url: '/folder/Archived', icon: 'archive' },
-    { title: 'Trash', url: '/folder/Trash', icon: 'trash' },
-    { title: 'Spam', url: '/folder/Spam', icon: 'warning' },
+    { title: 'Payment', url: 'payment', icon: 'card', color: 'primary' },
+    { title: 'Promotion', url: 'promotion', icon: 'pricetag', color: 'primary' },
+    { title: 'Ride History', url: 'history', icon: 'timer', color: 'primary' },
+    { title: 'Support', url: 'support', icon: 'chatbubbles', color: 'primary' },
+    { title: 'About', url: 'about', icon: 'information-circle', color: 'primary' },
   ];
-  public labels = ['Family', 'Friends', 'Notes', 'Work', 'Travel', 'Reminders'];
-  constructor() {}
+  auth: any;
+  constructor(public avatar: AvatarService, private platform: Platform, private nav: NavController) {
+    this.initialize()
+  }
+
+  async initialize() {
+    
+    this.platform.ready().then(async (readySource) => {
+      console.log('Platform ready from', readySource);
+     
+      await StatusBar.setOverlaysWebView({ overlay: true });
+      await StatusBar.setBackgroundColor({color: '#3880ff'})
+      await this.LoadSplash();
+
+      });
+  }
+
+  async LoadSplash(){
+    await SplashScreen.show();
+    await StatusBar.setOverlaysWebView({ overlay: false });
+
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+
+    // Listen for changes to the prefers-color-scheme media query
+    prefersDark.addListener((mediaQuery) => this.toggleDarkTheme(mediaQuery.matches));
+ 
+     this.toggleDarkTheme(prefersDark.matches);
+
+    await StatusBar.setOverlaysWebView({ overlay: true });
+  }
+
+
+  toggleDarkTheme(shouldAdd) {
+    if (shouldAdd){
+      StatusBar.setStyle({ style: Style.Dark });
+    }else{
+     StatusBar.setStyle({ style: Style.Light });
+    }
+  }
+
+  gotoProfile(){
+    this.nav.navigateForward('profile');
+  }
+
+  gotoPage(p){
+    this.nav.navigateForward(p);
+  }
+
+  
+
 }
