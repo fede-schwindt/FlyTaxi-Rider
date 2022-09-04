@@ -41,17 +41,7 @@ export class AvatarService {
       if (user){
       this.driverCollection = collection(this.firestore, 'Drivers');
 
-     
-        this.http.get("http://ip-api.com/json").subscribe((res: any) => {
-          
-           console.log('res ', res);
-
-
-           this.countryCode = res.countryCode;
-        
-        })
-      
-
+    
      this.getUserProfile(user).subscribe(async (data) => {
       this.profile = data;
 
@@ -71,6 +61,15 @@ export class AvatarService {
       
     }
   })
+
+  this.http.get("http://ip-api.com/json").subscribe((res: any) => {
+          
+           console.log('res ', res);
+
+
+           this.countryCode = res.countryCode || 'NG';
+        
+        })
   }
 
    getUserProfile(user) {

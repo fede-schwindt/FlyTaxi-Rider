@@ -1,5 +1,5 @@
 import { Component, NgZone } from '@angular/core';
-import { NavController, Platform } from '@ionic/angular';
+import { NavController, Platform, IonicModule } from '@ionic/angular';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { AvatarService } from './services/avatar.service';
 import { StatusBar, Style } from '@capacitor/status-bar';
@@ -22,12 +22,13 @@ export class AppComponent {
   auth: any;
   constructor(public avatar: AvatarService, private platform: Platform, private nav: NavController) {
     this.initialize()
+
   }
 
   async initialize() {
     
     this.platform.ready().then(async (readySource) => {
-      console.log('Platform ready from', readySource);
+      console.log('Platform ready from', this.avatar.profile.Rider_imgUrl);
      
       await StatusBar.setOverlaysWebView({ overlay: true });
       await StatusBar.setBackgroundColor({color: '#3880ff'})

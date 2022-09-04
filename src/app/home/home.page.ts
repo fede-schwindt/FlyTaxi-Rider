@@ -1,7 +1,6 @@
 import { Component, ElementRef, NgZone, OnInit, ViewChild } from '@angular/core';
-import { Geolocation } from '@capacitor/geolocation';
+import { Geolocation, Position } from '@capacitor/geolocation';
 import { ModalOptions, ModalController, Platform, NavController } from '@ionic/angular';
-import { StatusBar, Style } from '@capacitor/status-bar';
 import { AutocompleteComponent } from '../autocomplete/autocomplete.component';
 import { OverlayService } from '../services/overlay.service';
 import { GeocodeService } from '../services/geocode.service';
@@ -11,8 +10,7 @@ import { AvatarService } from '../services/avatar.service';
 import { Drivers } from '../interfaces/drivers';
 
 import { Observable, timer, interval } from 'rxjs';
-import { collection, Firestore, onSnapshot, orderBy, query, doc } from '@angular/fire/firestore';
-import { SplashScreen } from '@capacitor/splash-screen';
+import { Firestore, onSnapshot, doc } from '@angular/fire/firestore';
 import { Marker } from '@capacitor/google-maps';
 import { Auth } from '@angular/fire/auth';
 
@@ -30,7 +28,7 @@ export class HomePage implements OnInit {
   @ViewChild('map') mapRef: ElementRef<HTMLElement>;
   mappy; 
   @ViewChild('mapElement') mapElement:  ElementRef<HTMLElement>;
-  coordinates: any;
+  coordinates: Position;
   address: any = 'Unknown';
   bookingStage: any;
   confirmStage: any;

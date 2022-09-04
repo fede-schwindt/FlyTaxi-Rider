@@ -9,11 +9,11 @@
     <ion-title> Enter Destination </ion-title>
   </ion-toolbar>
   <ion-item lines="none">
-    <ion-icon color='success' name="locate"></ion-icon>
+    <ion-icon color='success' name="locate-sharp"></ion-icon>
     <ion-searchbar  animated="true" [(ngModel)]="autocomplete.query2" placeholder="Enter Pick Up Location" (ionInput)="updateSearch2()" (ionFocus)="Show()" (ionBlur)="Hide()" (ionCancel)="closeSearch()" class="search" showCancelButton="never"></ion-searchbar>
 </ion-item>
 <ion-item lines="none">
-<ion-icon color='primary' name="pin"></ion-icon>
+<ion-icon color='primary' name="pin-sharp"></ion-icon>
 <ion-searchbar  animated="true" placeholder="Enter Destination" [(ngModel)]="autocomplete.query" (ionInput)="updateSearch()" (ionFocus)="Show()" (ionBlur)="Hide()" (ionCancel)="closeSearch()" class="search2" showCancelButton="never"></ion-searchbar>
 </ion-item>
   
