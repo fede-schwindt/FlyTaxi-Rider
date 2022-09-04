@@ -36,7 +36,6 @@ export class AppComponent {
       this.source = readySource
      
       if (readySource != 'dom'){
-      await StatusBar.setOverlaysWebView({ overlay: true });
       await StatusBar.setBackgroundColor({color: '#3880ff'})
       }
       await this.LoadSplash();
@@ -53,7 +52,7 @@ export class AppComponent {
     await SplashScreen.show();
 
     if (this.source != 'dom')
-    await StatusBar.setOverlaysWebView({ overlay: false });
+    await StatusBar.setOverlaysWebView({ overlay: true });
 
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
 
