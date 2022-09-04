@@ -29,6 +29,7 @@ export class AvatarService {
   profile: DocumentData;
   pathM: string;
   countryCode: any;
+  user: import("@angular/fire/auth").User;
 
   constructor(
     private auth: Auth,
@@ -39,6 +40,7 @@ export class AvatarService {
   ) {
     this.auth.onAuthStateChanged((user)=>{
       if (user){
+        this.user = user;
       this.driverCollection = collection(this.firestore, 'Drivers');
 
     
