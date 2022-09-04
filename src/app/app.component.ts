@@ -28,7 +28,6 @@ export class AppComponent {
   async initialize() {
     
     this.platform.ready().then(async (readySource) => {
-      console.log('Platform ready from', this.avatar.profile.Rider_imgUrl);
      
       await StatusBar.setOverlaysWebView({ overlay: true });
       await StatusBar.setBackgroundColor({color: '#3880ff'})
