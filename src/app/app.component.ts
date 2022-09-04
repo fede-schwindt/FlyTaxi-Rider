@@ -4,6 +4,7 @@ import { SplashScreen } from '@capacitor/splash-screen';
 import { AvatarService } from './services/avatar.service';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { timer } from 'rxjs';
+import { Auth } from '@angular/fire/auth';
 
 
 @Component({
@@ -19,8 +20,9 @@ export class AppComponent {
     { title: 'Support', url: 'support', icon: 'chatbubbles', color: 'primary' },
     { title: 'About', url: 'about', icon: 'information-circle', color: 'primary' },
   ];
-  auth: any;
-  constructor(public avatar: AvatarService, private platform: Platform, private nav: NavController) {
+  source: string;
+  user: import("@angular/fire/auth").User;
+  constructor(public avatar: AvatarService, private auth: Auth, private platform: Platform, private nav: NavController) {
     this.initialize()
 
   }
@@ -28,16 +30,29 @@ export class AppComponent {
   async initialize() {
     
     this.platform.ready().then(async (readySource) => {
+      this.auth.onAuthStateChanged(async (user)=>{
+      console.log(user);
+      this.user = user;
+      this.source = readySource
      
+      if (readySource != 'dom'){
       await StatusBar.setOverlaysWebView({ overlay: true });
       await StatusBar.setBackgroundColor({color: '#3880ff'})
+      }
       await this.LoadSplash();
+      
+
+    })
+
+    
 
       });
   }
 
   async LoadSplash(){
     await SplashScreen.show();
+
+    if (this.source != 'dom')
     await StatusBar.setOverlaysWebView({ overlay: false });
 
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
@@ -47,6 +62,7 @@ export class AppComponent {
  
      this.toggleDarkTheme(prefersDark.matches);
 
+     if (this.source != 'dom')
     await StatusBar.setOverlaysWebView({ overlay: true });
   }
 

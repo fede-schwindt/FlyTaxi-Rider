@@ -51,14 +51,7 @@ export class AvatarService {
       if (!this.profile.Rider_phone)
       // await this.authService.logout();
 
-      this.http.get("http://ip-api.com/json").subscribe((res: any) => {
-          
-        console.log('res ', res);
-
-
-        this.countryCode = res.countryCode || 'NG';
-     
-     })
+    
 
       if (this.profile.Rider_name)
       this.userName = this.profile.Rider_name;
@@ -66,7 +59,14 @@ export class AvatarService {
       this.pathM = `uploads/${this.profile.uid}/profile.png`;
       }
      })
+       this.http.get("http://ip-api.com/json").subscribe((res: any) => {
+          
+        console.log('res ', res);
+
+
+        this.countryCode = res.countryCode || 'NG';
      
+     })
     }else{
       this.userName = "None";
       

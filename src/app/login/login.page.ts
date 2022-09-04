@@ -61,9 +61,7 @@ export class LoginPage implements OnInit {
   
 
   async ngOnInit() {
-    
-   
-   
+  
     this.form = new FormGroup({
       phone: new FormControl(null, {
         validators: [Validators.required, Validators.minLength(10), Validators.maxLength(10)]

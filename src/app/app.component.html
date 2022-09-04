@@ -1,6 +1,6 @@
 <ion-app>
-  <ion-split-pane *ngIf="avatar.user" contentId="main-content">
-    <ion-menu contentId="main-content" type="overlay">
+  <ion-split-pane contentId="main-content">
+    <ion-menu  *ngIf="user" contentId="main-content" type="overlay">
       <ion-content>
         <ion-list id="inbox-list" lines="none">
 

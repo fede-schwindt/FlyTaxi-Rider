@@ -13,6 +13,7 @@ import { Observable, timer, interval } from 'rxjs';
 import { Firestore, onSnapshot, doc } from '@angular/fire/firestore';
 import { Marker } from '@capacitor/google-maps';
 import { Auth } from '@angular/fire/auth';
+import { AuthService } from '../services/auth.service';
 
 declare var google;
 
@@ -91,7 +92,7 @@ export class HomePage implements OnInit {
   places: import("@angular/fire/firestore").DocumentData[];
 
 
-  constructor(private auth: Auth, public map: MapService, private nav: NavController, private platform: Platform, private firestore: Firestore, private readonly database: AvatarService, private ngZone: NgZone, private geocode: GeocodeService, private overlay: OverlayService, private modalCtrl: ModalController) {}
+  constructor( private authService: AuthService, private auth: Auth, public map: MapService, private nav: NavController, private platform: Platform, private firestore: Firestore, private readonly database: AvatarService, private ngZone: NgZone, private geocode: GeocodeService, private overlay: OverlayService, private modalCtrl: ModalController) {}
 
 
   //start the scene
@@ -173,6 +174,10 @@ console.log(d)
            
             await this.checkDriversAround(this.coordinates);
 
+}
+
+async logout() {
+  await this.authService.logout();
 }
 
 ionViewDidLeave() {
