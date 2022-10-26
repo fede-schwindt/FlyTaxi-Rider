@@ -29,6 +29,15 @@ export class AutocompleteComponent implements OnInit {
   
   ngOnInit() {
     
+     this.http.get("http://ip-api.com/json").subscribe((res: any) => {
+          
+        console.log('res ', res);
+
+
+        this.countryCode = res.countryCode || 'NG';
+     
+     })
+    
     this.skeletOns = [
       {},{},{},{}
     ]
