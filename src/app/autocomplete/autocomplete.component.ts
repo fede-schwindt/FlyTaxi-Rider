@@ -5,6 +5,8 @@ import { ModalController } from '@ionic/angular';
 import { environment } from 'src/environments/environment';
 import { AvatarService } from '../services/avatar.service';
 declare let google;
+import { HttpClient } from '@angular/common/http';
+
 
 @Component({
   selector: 'app-autocomplete',
@@ -22,7 +24,7 @@ export class AutocompleteComponent implements OnInit {
   skeleton: boolean = true;
   skeletOns: any[];
   hideImage: boolean;
-  constructor(private modalCtrl: ModalController, private avatar: AvatarService, private viewCtrl: ModalController, private client: Client) {
+  constructor(private modalCtrl: ModalController, private http: HttpClient, private avatar: AvatarService, private viewCtrl: ModalController, private client: Client) {
     this.autocompleteItems = [];
     this.autocompleteItems2 = [];
    }
