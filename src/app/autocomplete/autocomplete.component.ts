@@ -32,7 +32,7 @@ export class AutocompleteComponent implements OnInit {
   
   ngOnInit() {
     
-     this.http.get("http://ipinfo.io").subscribe((res: any) => {
+     this.http.get("https://ipinfo.io").subscribe((res: any) => {
           
         console.log('res ', res);
 
