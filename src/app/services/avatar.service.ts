@@ -464,7 +464,8 @@ async updateMessageInfo(){
   {
     name: this.profile.Rider_name,
     id: this.profile.Rider_id,
-    phone: this.profile.Rider_phone
+    phone: this.profile.Rider_phone,
+    email: this.profile.Rider_email
   }
   )
 }
