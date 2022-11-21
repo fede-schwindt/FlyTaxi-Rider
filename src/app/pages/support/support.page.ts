@@ -65,6 +65,7 @@ export class SupportPage implements OnInit {
     await this.chatService.addChatMessage(this.newMsg)
       this.newMsg = '';
       this.content.scrollToBottom();
+      this.chatService.updateMessageInfo();
   }
  
   
