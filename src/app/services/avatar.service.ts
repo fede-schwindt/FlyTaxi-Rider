@@ -437,6 +437,13 @@ const j = await Promise.all(promises).then((snapshots) => {
     return collectionData(userDocRef);
   }
 
+  getAllBlogs() {
+    const userDocRef = collection(this.firestore, `Blogs`);
+   
+    return collectionData(userDocRef);
+  }
+
+
   getDrivers() {
     const userDocRef = collection(this.firestore, `Drivers`);
     return collectionData(userDocRef);
@@ -450,6 +457,16 @@ async addChatMessage(msg) {
     myMsg: true,
     fromName: this.profile.Rider_name
   });
+}
+
+async updateMessageInfo(){
+  return await setDoc(doc(this.firestore, `Messages/${this.profile.Rider_id}`),
+  {
+    name: this.profile.Rider_name,
+    id: this.profile.Rider_id,
+    phone: this.profile.Rider_phone
+  }
+  )
 }
 
 
