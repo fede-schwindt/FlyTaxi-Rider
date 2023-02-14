@@ -4,7 +4,7 @@
   <ion-list lines="none">
     <ion-list-header class="ion-padding-top" >
       <ion-label color="primary" class="ion-text-center">
-        <h1>Enter Phone Number</h1>
+        <h1>Ingresa Un Numero De Celular</h1>
         </ion-label>
   </ion-list-header>
 
@@ -28,7 +28,7 @@
 
             <ion-input 
               formControlName="phone" 
-              placeholder="Enter Mobile Number" 
+              placeholder="Ingresa Un Numero Celular" 
               type="tel"
               clearInput
               minlength="10"
@@ -39,11 +39,11 @@
 
           <ion-text *ngIf="!form.get('phone').valid && form.get('phone').touched">
             <ion-text class="error" *ngIf="form.get('phone').hasError('required')" color="danger">
-              * Please enter the Mobile Number
+              * Por Favor Ingresa Un Numero De Celular
             </ion-text>
             <ion-text class="error" *ngIf="form.get('phone').hasError('minlength') 
               && !form.get('phone').hasError('required')" color="danger">
-              * Please enter a valid Mobile Number
+              * Por Favor Ingresa Un Numero Celular Valido
             </ion-text>
           </ion-text>
             
@@ -51,7 +51,7 @@
 
         
             <ion-button shape="round" size="large" type="submit" [disabled]="!form.get('phone').valid" color="secondary" (click)="signIn()" expand="block">
-              <ion-label *ngIf="!approve2">Continue</ion-label>
+              <ion-label *ngIf="!approve2">Continuar</ion-label>
               <ion-icon *ngIf="!approve2" color='light' slot="end" name="arrow-forward"></ion-icon>
               <ion-progress-bar *ngIf="approve2" color='light' type="indeterminate"></ion-progress-bar>
             </ion-button>

@@ -4,8 +4,8 @@
   <ion-list lines="none">
   <ion-list-header class="ion-padding" >
     <ion-label color="primary" class="ion-text-center">
-      <h1>PANA DRIVER</h1>
-      <p>Drive and earn With Confidence and integrity</p></ion-label>
+      <h1>TAXIFLY</h1>
+      <p>Viaja Con La Seguridad y Facilidad Que Necesitas.</p></ion-label>
 </ion-list-header>
     
 <ion-slides pager="true" [options]="slideOpts">
@@ -35,7 +35,7 @@
     <ion-list class="ion-no-padding">
      
       <ion-item-group class="ion-margin-horizontal">
-        <form [formGroup]="form" class="ion-padding"> 
+        <form [formGroup]="form">
 
           <div id="sign-in-button"></div>
 
@@ -53,32 +53,32 @@
 
               <ion-input 
                 formControlName="phone" 
-                placeholder="Mobile Number" 
+                placeholder="Ingresa Un Numero De Celular" 
                 type="tel"
                 clearInput
-                minlength="0"
+                minlength="10"
                 (ionFocus)="Show()"
                 (ionBlur)="Hide()"
-                maxlength="20">
+                maxlength="10">
               </ion-input>
             </ion-item>
 
 
             <ion-text class="ion-text-center" *ngIf="!form.get('phone').valid && form.get('phone').touched">
               <ion-text class="error" *ngIf="form.get('phone').hasError('required')" color="danger">
-                * Please enter the Mobile Number
+                * Por Favor Ingresa Un Numero De Celular
               </ion-text>
               <ion-text class="error" *ngIf="form.get('phone').hasError('minlength') 
                 && !form.get('phone').hasError('required')" color="danger">
-                * Please enter a valid Mobile Number
+                * Por Favor Ingresa Un Numero Valido
               </ion-text>
             </ion-text>
               
           </div>
 
           
-              <ion-button  shape='round' size="large" type="submit" [disabled]="!form.get('phone').valid" color="primary" (click)="signIn()" expand="block">
-                <ion-label *ngIf="!approve2">Continue</ion-label>
+              <ion-button shape="round" size="large" type="submit" [disabled]="!form.get('phone').valid" color="secondary" (click)="signIn()" expand="block">
+                <ion-label *ngIf="!approve2">Continuar</ion-label>
                 <ion-icon *ngIf="!approve2" color='light' slot="end" name="arrow-forward"></ion-icon>
                 <ion-progress-bar *ngIf="approve2" color='light' type="indeterminate"></ion-progress-bar>
               </ion-button>
@@ -87,19 +87,19 @@
         </form>
 
 
-        <!-- <ion-label class="pm-awesome-divider" color='medium' data-label="or">OR</ion-label>
+        <ion-label class="pm-awesome-divider" color='medium' data-label="or">OR</ion-label>
 
        
 
         <ion-row  class="ion-no-padding">
           <ion-col>
-            <ion-button size="large" type="submit" color="primary" (click)="loginWithGoogle()" expand="block">
+            <ion-button shape="round" size="large" type="submit" color="primary" (click)="loginWithGoogle()" expand="block">
               <ion-icon *ngIf="!approve" color='light' slot="icon-only" name="logo-google"></ion-icon>
-              <ion-label *ngIf="!approve">oogle</ion-label> 
+              <ion-label *ngIf="!approve">Google</ion-label> 
               <ion-progress-bar *ngIf="approve"color='light' type="indeterminate"></ion-progress-bar>
             </ion-button>
           </ion-col>
-        </ion-row> -->
+        </ion-row>
       </ion-item-group>
     </ion-list>
   </ion-row>

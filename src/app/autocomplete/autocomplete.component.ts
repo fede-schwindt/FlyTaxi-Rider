@@ -24,7 +24,7 @@ export class AutocompleteComponent implements OnInit {
   skeleton: boolean = true;
   skeletOns: any[];
   hideImage: boolean;
-  countryCode: any = 'NG';
+  countryCode: any = 'ARG';
   constructor(private modalCtrl: ModalController, private http: HttpClient, private avatar: AvatarService, private viewCtrl: ModalController, private client: Client) {
     this.autocompleteItems = [];
     this.autocompleteItems2 = [];
@@ -37,7 +37,7 @@ export class AutocompleteComponent implements OnInit {
         console.log('res ', res);
 
 
-        this.countryCode = res.country || 'NG';
+        this.countryCode = res.country || 'ARG';
      
      })
     

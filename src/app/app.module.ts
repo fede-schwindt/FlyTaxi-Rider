@@ -3,7 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { RouteReuseStrategy } from '@angular/router';
 
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
@@ -18,10 +18,12 @@ import { getApp } from 'firebase/app';
 import { OtpComponent } from './otp/otp.component';
 import { NgOtpInputModule } from  'ng-otp-input';
 import {Client} from "@googlemaps/google-maps-services-js";
+import { AutocompleteComponent } from './autocomplete/autocomplete.component';
 import { HttpClientModule } from '@angular/common/http';
+import { ServiceWorkerModule } from '@angular/service-worker';
 
 @NgModule({
-  declarations: [AppComponent, OtpComponent],
+  declarations: [AppComponent, OtpComponent, AutocompleteComponent],
   entryComponents: [],
   imports: [
     BrowserModule,
@@ -42,6 +44,12 @@ import { HttpClientModule } from '@angular/common/http';
     }),
     provideFirestore(() => getFirestore()),
     provideStorage(() => getStorage()),
+    ServiceWorkerModule.register('ngsw-worker.js', {
+      enabled: environment.production,
+      // Register the ServiceWorker as soon as the application is stable
+      // or after 30 seconds (whichever comes first).
+      registrationStrategy: 'registerWhenStable:30000'
+    }),
   ],
   providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }, GoogleAuthProvider, FacebookAuthProvider, Client],
   bootstrap: [AppComponent],

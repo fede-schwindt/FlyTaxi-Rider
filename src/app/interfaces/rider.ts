@@ -14,6 +14,5 @@ export interface Rider {
     countDown: number;
     cancel: boolean;
     price: number;
-    cash: boolean;
-    time: any
+    cash: boolean
 }

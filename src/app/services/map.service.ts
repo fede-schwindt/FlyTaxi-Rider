@@ -42,8 +42,9 @@ export class MapService {
        lng: coords.coords.longitude
      }
 
-     this.newMap.enableTrafficLayer(true);
-     
+
+    this.newMap.enableTrafficLayer(true);
+    this.newMap.enableCurrentLocation(true);
      await this.newMap.setCamera({
        animate: true,
        animationDuration: 500,
@@ -53,9 +54,9 @@ export class MapService {
         const address = await this.geocode.getAddress(this.LatLng.lat, this.LatLng.lng)
         this.actualLocation = address.data.results[0].formatted_address;
         this.locationAddress = address.data.results[1].address_components[0].long_name + ' ' + address.data.results[1].address_components[1].long_name;
-        this.newMap.enableCurrentLocation(true);
+       
    }catch(e){
-      this.overlay.showAlert('Error', e)
+      alert(e)
    }
  }
 

@@ -1,23 +1,20 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
-import { collection, collectionData, CollectionReference, doc, docData, DocumentData, endAt, Firestore, getDocs, DocumentChange, orderBy, query, setDoc, startAt, updateDoc, onSnapshot, deleteDoc, serverTimestamp, addDoc } from '@angular/fire/firestore';
+import { collection, collectionData, CollectionReference, doc, docData, DocumentData, endAt, Firestore, getDocs, DocumentChange, orderBy, query, setDoc, startAt, updateDoc, onSnapshot, deleteDoc, serverTimestamp, addDoc, limit, limitToLast } from '@angular/fire/firestore';
 import {
   getDownloadURL,
   ref,
   Storage,
   uploadString,
 } from '@angular/fire/storage';
-import { Router } from '@angular/router';
 import { Photo } from '@capacitor/camera';
-import { NavController } from '@ionic/angular';
 import { distanceBetween, geohashForLocation, geohashQueryBounds} from 'geofire-common';
-import { Observable, Subscription } from 'rxjs';
+import { Observable } from 'rxjs';
 import { Card } from '../interfaces/card';
-import { docs } from '../interfaces/docs';
 import { Drivers } from '../interfaces/drivers';
 import { Rider } from '../interfaces/rider';
 import { AuthService } from './auth.service';
-import { OverlayService } from './overlay.service';
 
 @Injectable({
   providedIn: 'root',
@@ -31,194 +28,96 @@ export class AvatarService {
   userEmail: string;
   profile: DocumentData;
   pathM: string;
-  subscription: Subscription
-  subscription2: Subscription
-
+  countryCode: any;
+  user: import("@angular/fire/auth").User;
 
   constructor(
     private auth: Auth,
     public firestore: Firestore,
     private storage: Storage,
-    private overlay: OverlayService,
-    private nav: NavController,
-    private router: Router,
+    private http: HttpClient,
     private authService: AuthService
   ) {
-    const sub = this.auth.onAuthStateChanged((user)=>{
+    this.auth.onAuthStateChanged((user)=>{
       if (user){
+        this.user = user;
       this.driverCollection = collection(this.firestore, 'Drivers');
 
-
-    console.log(user)
-
-    this.subscription = this.CheckProfile(user).subscribe(async (data) => {
-      if (data)
-      if (data.Rider_name){
-        await this.authService.logout();
-        this.router.navigateByUrl('/', { replaceUrl: true });
-        this.overlay.showAlert('Another Account', 'Cannot sign in as both a rider and driver on one account. Use another phone number')
-        }
-        this.subscription.unsubscribe();
-    })
-
-     this.subscription2 = this.getUserProfile(user).subscribe(async (data) => {
+    
+     this.getUserProfile(user).subscribe(async (data) => {
       this.profile = data;
 
-      console.log(data);
-
       if (this.profile){
-      if (!this.profile.Driver_phone)
+      if (!this.profile.Rider_phone)
       // await this.authService.logout();
 
-      if (this.profile.Driver_name){
-      this.userName = this.profile.Driver_name;
-      }else{
-        this.nav.navigateForward('details');
-      }
+    
 
-      if (this.profile.Approved == false){
-          this.nav.navigateForward('waiting');
-        }
+      if (this.profile.Rider_name)
+      this.userName = this.profile.Rider_name;
 
       this.pathM = `uploads/${this.profile.uid}/profile.png`;
-      }else{
-        this.nav.navigateForward('details');
       }
-      this.subscription2.unsubscribe();
      })
+       this.http.get("http://ip-api.com/json").subscribe((res: any) => {
+          
+        console.log('res ', res);
+
+
+        this.countryCode = res.countryCode || 'ARG';
      
+     })
     }else{
       this.userName = "None";
       
     }
-   // sub();
   })
+
+ 
   }
 
    getUserProfile(user) {
-     const userDocRef = doc(this.firestore, `Drivers/${user.uid}`);
+    const userDocRef = doc(this.firestore, `Riders/${user.uid}`);
      return docData(userDocRef);
   }
 
-  CheckProfile(user) {
-    const userDocRef = doc(this.firestore, `Riders/${user.uid}`);
-    return docData(userDocRef);
- }
 
-
-  async RequestRideWithRiderDetails(user_Loc_coord, user_Des_coord, ID){
+  //Request a ride with your details and remove the driver from list of available drivers to avoid another request from someone else
+  async RequestRideWithRiderDetails(user_Loc_coord, des, loco, user_Des_coord, ID, price, cash){
     try{
       const loc: Rider = {
-        Loc_lat: 5.5096,
-        Loc_lng: 7.0391,
-        Rider_id: 'syusyugdshgsghdsdssd',
-        Rider_name: "Chinedu",
-        Rider_phone: 6478947352,
-        Rider_imgUrl: "https://avatars.githubusercontent.com/u/7928001?v=4",
-        Rider_rating: 3,
+        Loc_lat: user_Loc_coord.lat,
+        Loc_lng: user_Loc_coord.lng,
+        Rider_id: this.profile.Rider_id,
+        Rider_name: this.profile.Rider_name,
+        Rider_phone: this.profile.Rider_phone,
+        Rider_imgUrl: this.profile.Rider_imgUrl,
+        Rider_rating: this.profile.Rider_rating,
         Des_lat: user_Des_coord.lat,
         Des_lng: user_Des_coord.lng,
-        Rider_Location: 'Owerri Imo State',
-        Rider_Destination: 'Kenville Hotels Amabar',
-        Rider_email: 'chndht@gmiail.ccjd',
-        countDown: 10,
+        Rider_Location: loco,
+        Rider_Destination: des,
+        Rider_email: this.profile.Rider_email,
+        countDown: 20,
         cancel: false,
-        price: 2230,
-        cash: true,
-        time: ''
+        price: price,
+        cash: cash
       };
      
       const userDocRef = doc(this.firestore, 'Drivers', ID)
-      await updateDoc(userDocRef, {onlineState: false});
+      await updateDoc(userDocRef, {onlineState: false,});
       console.log('deleted current driver ID');
       await setDoc(doc(this.firestore, "Request",  ID), { ...loc});
       console.log('Added New driver ID');
     }catch(e){
       throw new Error(e);
+      
     }
   }
 
-
-  async RejectRider(){
-    try {
-      const userDocRef = doc(this.firestore, "Request",  this.auth.currentUser.uid)
-      await updateDoc(userDocRef, {
-        cancel: true,
-        start: false
-      });
-      this.updateOnlineState(true);
-      return true;
-    } catch (e) {
-      alert(e)
-      return null;
-    }
-  }
-
-  async PickRider(){
-    try {
-      const userDocRef = doc(this.firestore, "Request",  this.auth.currentUser.uid)
-      await updateDoc(userDocRef, {
-        start: true,
-      });
-      // this.updateOnlineState(true);
-      return true;
-    } catch (e) {
-      alert(e)
-      return null;
-    }
-  }
-
-
-  async EndRide(){
-    try {
-      const userDocRef = doc(this.firestore, "Request",  this.auth.currentUser.uid)
-      await updateDoc(userDocRef, {
-        stop: true,
-        start: false
-      });
-      // this.updateOnlineState(true);
-      return true;
-    } catch (e) {
-      alert(e)
-      return null;
-    }
-  }
-
-
-  async createHistory(user){
-      try{
-        const loc: Rider = {
-          Loc_lat: user.Loc_lat,
-          Loc_lng: user.Loc_lng,
-          Rider_id: user.Rider_id,
-          Rider_name: user.Rider_name,
-          Rider_phone: user.Rider_phone,
-          Rider_imgUrl: user.Rider_imgUrl,
-          Rider_rating: user.Rider_rating,
-          Des_lat: user.Des_lat,
-          Des_lng: user.Des_lng,
-          Rider_Location: user.Rider_Location,
-          Rider_Destination: user.Rider_Destination,
-          Rider_email: user.Rider_email,
-          countDown: 0,
-          cancel: false,
-          price: user.price,
-          cash: user.cash,
-          time: serverTimestamp(),
-        };
-        await setDoc(doc(this.firestore, "Drivers",  `${this.auth.currentUser.uid}/History/${user.Rider_id}`), { ...loc});
-        await setDoc(doc(this.firestore, "AllRides",  `${this.auth.currentUser.uid}/customer/${user.Rider_id}`), { ...loc});
-      }catch(e){
-        alert(e)
-      }
-    }
-  
-
-
-  //GO offline()
-
-  async goOffline(){
-    await deleteDoc(doc(this.firestore, "Drivers", this.auth.currentUser.uid));
+  async RestartRequestSinceReject(ID){
+    const userDocRef = doc(this.firestore, 'Request', ID)
+    await updateDoc(userDocRef, {cancel: false});
   }
 
 //delete the driver that has a request sent to him.
@@ -226,10 +125,79 @@ export class AvatarService {
     await deleteDoc(doc(this.firestore, "Request", ID))
   }
 
+  async cancelRide(ID){
+    const userDocRef = doc(this.firestore, 'Request', ID)
+    await updateDoc(userDocRef, {cancel: true});
+  }
 
-  async UpdateCountDown(time){
+  //Push driver info into the request database
+  async PushDriverToRequest(Driver){
+    try{
+    const loc: Drivers = {
+      geohash: Driver.geohash,
+      Driver_lat: Driver.Driver_lat,
+      Driver_lng: Driver.Driver_lng,
+      Driver_id: Driver.Driver_id,
+      Driver_name: Driver.Driver_name,
+      Driver_car: Driver.Driver_car,
+      Driver_imgUrl: Driver.Driver_imgUrl,
+      Driver_rating: Driver.Driver_rating,
+      distance: 0,
+      duration: 0,
+      seats: Driver.seats,
+      start: false,
+      stop: Driver.stop,
+      intransit: Driver.intransit,
+      cancel: Driver.cancel,
+      Driver_cartype: Driver.Driver_cartype,
+      Driver_plate: Driver.Driver_plate,
+      time: ''
+    };
+    await updateDoc(doc(this.firestore, "Request",  Driver.Driver_id), { ...loc});
+  }catch(e){
+    throw new Error(e);
+    
+  }
+   
+    console.log('done')
+  }
+
+
+  async createHistory(Driver){
+    try{
+    const loc: Drivers = {
+      geohash: Driver.geohash,
+      Driver_lat: Driver.Driver_lat,
+      Driver_lng: Driver.Driver_lng,
+      Driver_id: Driver.Driver_id,
+      Driver_name: Driver.Driver_name,
+      Driver_car: Driver.Driver_car,
+      Driver_imgUrl: Driver.Driver_imgUrl,
+      Driver_rating: Driver.Driver_rating,
+      distance: 0,
+      duration: 0,
+      seats: Driver.seats,
+      start: true,
+      stop: Driver.stop,
+      intransit: Driver.intransit,
+      cancel: Driver.cancel,
+      Driver_cartype: Driver.Driver_cartype,
+      Driver_plate: Driver.Driver_plate,
+      time: serverTimestamp(),
+    };
+    await setDoc(doc(this.firestore, "Riders",  `${this.auth.currentUser.uid}/History/${Driver.Driver_id}`), { ...loc});
+  }catch(e){
+    throw new Error(e);
+    
+  }
+   
+    console.log('done')
+  }
+
+
+  async UpdateCountDown(time, Driver){
     try {
-      const userDocRef = doc(this.firestore, "Request",  this.auth.currentUser.uid)
+      const userDocRef = doc(this.firestore, "Request",  Driver.Driver_id)
       await updateDoc(userDocRef, {
         countDown: time,
       });
@@ -241,17 +209,34 @@ export class AvatarService {
   }
 
 
-  //Push driver info into the request database
-  async PushDriverToRequest(coord, name, email, phone, car, cartype, plate, imageUrl, document){
+  async AddKnownPlace(place){
+    try {
+      const userDocRef = doc(this.firestore, "Riders",  `${this.auth.currentUser.uid}/KnownPlaces/${place.full}`)
+      await setDoc(userDocRef, {
+        place,
+      });
+      return true;
+    } catch (e) {
+      alert(e)
+      return null;
+    }
+  }
+
+
+
+
+  ///update driver information
+  async CreateandUpdateDriver(coord, ID){
     try{
+   
     const loc: Drivers = {
       geohash: geohashForLocation([coord.coords.latitude, coord.coords.longitude]),
       Driver_lat: coord.coords.latitude,
       Driver_lng: coord.coords.longitude,
-      Driver_id: this.auth.currentUser.uid,
-      Driver_name: name,
-      Driver_car: car,
-      Driver_imgUrl: imageUrl,
+      Driver_id: ID,
+      Driver_name: 'james',
+      Driver_car: 'Nissan',
+      Driver_imgUrl: '',
       Driver_rating: 0,
       distance: 0,
       duration: 0,
@@ -260,36 +245,32 @@ export class AvatarService {
       stop: false,
       intransit: false,
       cancel: false,
-      Driver_cartype: cartype,
-      Driver_plate: plate,
-      Driver_num_rides: 0,
-      Document: document,
-      Driver_email: email,
-      Driver_phone: phone,
-      onlineState: false,
-      Earnings: 0,
-      Approved: false
+      Driver_cartype: '',
+      Driver_plate: '',
+      time: ''
     };
-    await updateDoc(doc(this.firestore, "Request",  this.auth.currentUser.uid), { ...loc});
+    await setDoc(doc(this.firestore, "Drivers",  ID), { ...loc});
   }catch(e){
     throw new Error(e);
+    
   }
    
     console.log('done')
   }
 
 
+
   ///create a new driver and publish info to database
-  async CreateNewDriver(coord, name, email, phone, car, cartype, plate, imageUrl, document){
+  async CreateNewDriver(coord){
     try{
     const loc: Drivers = {
       geohash: geohashForLocation([coord.coords.latitude, coord.coords.longitude]),
       Driver_lat: coord.coords.latitude,
       Driver_lng: coord.coords.longitude,
-      Driver_id: this.auth.currentUser.uid,
-      Driver_name: name,
-      Driver_car: car,
-      Driver_imgUrl: imageUrl,
+      Driver_id: 'Driver ' + Math.random(),
+      Driver_name: 'james',
+      Driver_car: 'Nissan',
+      Driver_imgUrl: '',
       Driver_rating: 0,
       distance: 0,
       duration: 0,
@@ -298,22 +279,83 @@ export class AvatarService {
       stop: false,
       intransit: false,
       cancel: false,
-      Driver_cartype: cartype,
-      Driver_plate: plate,
-      Driver_num_rides: 0,
-      Document: document,
-      Driver_email: email,
-      Driver_phone: phone,
-      onlineState: false,
-      Earnings: 0,
-      Approved: false
+      Driver_cartype: '',
+      Driver_plate: '',
+      time: ''
     };
-    await setDoc(doc(this.firestore, "Drivers",  this.auth.currentUser.uid), { ...loc});
+    await setDoc(doc(this.firestore, "Drivers",  'Driver '+ Math.random()), { ...loc});
   }catch(e){
     throw new Error(e);
   }
   }
 
+  //geoquery, sort drivers within a specified radius and seperate them from the others
+  async checkDriversWithin(center, radiusInM){
+    try{
+    const userDocRef = collection(this.firestore, `Drivers`);
+// Each item in 'bounds' represents a startAt/endAt pair. We have to issue
+// a separate query for each pair. There can be up to 9 pairs of bounds
+// depending on overlap, but in most cases there are 4.
+const bounds = geohashQueryBounds(center, radiusInM);
+const promises = [];
+for (const b of bounds) {
+  const q = query(userDocRef, orderBy("geohash"), startAt(b[0]), endAt(b[1]));
+  this.directory = q;
+  const documentSnapshots = await getDocs(q);
+  documentSnapshots.docChanges().forEach((doc) => {
+    // alert(JSON.stringify(doc.doc));
+    // doc.data() is never undefined for query doc snapshots
+    console.log(doc.doc, " => ", doc.doc.data());
+    promises.push(doc.doc.data());
+  })
+ 
+}
+
+
+
+// Collect all the query results together into a single list
+const j = await Promise.all(promises).then((snapshots) => {
+  const matchingDocs = [];
+  for (const snap of snapshots) {
+     
+      const lat = snap.Driver_lat;
+      const lng = snap.Driver_lng;
+      // We have to filter out a few false positives due to GeoHash
+      // accuracy, but most will match
+      const distanceInKm = distanceBetween([lat, lng], center);
+      
+    
+      const distanceInM = distanceInKm * 1000;
+
+      console.log(snap);
+      snap.distance = distanceInM;
+      snap.duration = this.time_convert(distanceInM)
+
+      console.log(distanceInM, radiusInM);
+      if (distanceInM <= radiusInM) {
+        matchingDocs.push(snap);
+      }
+      
+  }
+
+  return matchingDocs;
+})
+
+   if (j)
+   return j
+
+    }catch(e){
+      throw new Error(e);
+    }
+
+  }
+
+
+   time_convert(num)
+  { 
+   var minutes = Math.floor(num / 60);  
+   return minutes       
+  }
 
      getDriver() {
       return collectionData(this.driverCollection, {
@@ -340,7 +382,7 @@ export class AvatarService {
 
       const imageUrl = await getDownloadURL(storageRef);
 
-      const userDocRef = doc(this.firestore, `Drivers/${uid}`);
+      const userDocRef = doc(this.firestore, `Riders/${uid}`);
       await setDoc(userDocRef, {
         imageUrl,
       });
@@ -349,62 +391,58 @@ export class AvatarService {
       return null;
     }
   }
+ 
 
-  async uploadDocImages(cameraFile: Photo) {
-   
-    const storageRef = ref(this.storage);
-
+  async createUser(name, email, img, phone, uid) {
     try {
-      await uploadString(storageRef, cameraFile.base64String, 'base64');
-
-      const imageUrl = await getDownloadURL(storageRef);
-   
+      const loc: Rider = {
+        Loc_lat: 0,
+        Loc_lng: 0,
+        Rider_id: uid,
+        Rider_name: name,
+        Rider_phone: phone,
+        Rider_imgUrl: img,
+        Rider_rating: 0,
+        Des_lat: 0,
+        Des_lng: 0,
+        Rider_Location: '',
+        Rider_Destination: '',
+        Rider_email: email,
+        countDown: 0,
+        cancel: false,
+        price: 0,
+        cash: true
+      };
+      await setDoc(doc(this.firestore, "Riders",  uid), { ...loc});
       return true;
     } catch (e) {
       return null;
     }
   }
- 
+
+
    getMessage() {
     const userDocRef = collection(this.firestore, `Messages/${this.auth.currentUser.uid}/messages`);
     return collectionData(userDocRef);
   }
 
   getCards() {
-    const userDocRef = collection(this.firestore, `Drivers/${this.auth.currentUser.uid}/Cards`);
+    const userDocRef = collection(this.firestore, `Riders/${this.auth.currentUser.uid}/Cards`);
     return collectionData(userDocRef);
   }
 
-  getDocs() {
-    const userDocRef = collection(this.firestore, `Drivers/${this.auth.currentUser.uid}/Documents`);
+  getKnownPlaces() {
+    const userDocRef = collection(this.firestore, `Riders/${this.auth.currentUser.uid}/KnownPlaces`);
+   
     return collectionData(userDocRef);
   }
 
-
-  getEarnings(uid) {
-    const userDocRef = doc(this.firestore, `Drivers/${uid}`);
-    return docData(userDocRef);
-  }
-
-  getCartypes() {
-    const userDocRef = collection(this.firestore, `Cartypes`);
+  getAllBlogs() {
+    const userDocRef = collection(this.firestore, `Blogs`);
+   
     return collectionData(userDocRef);
   }
 
-  getDocuments() {
-    const userDocRef = collection(this.firestore, `Documents`);
-    return collectionData(userDocRef);
-  }
-
-  getHistory() {
-    const userDocRef = collection(this.firestore,  "Drivers",  `${this.auth.currentUser.uid}/History`);
-    return collectionData(userDocRef);
-  }
-
-  getRequests() {
-    const userDocRef = doc(this.firestore,  `Request/${this.auth.currentUser.uid}`);
-    return docData(userDocRef);
-  }
 
   getDrivers() {
     const userDocRef = collection(this.firestore, `Drivers`);
@@ -412,18 +450,17 @@ export class AvatarService {
   }
 
 async addChatMessage(msg) {
-  return await addDoc(collection(this.firestore, `Messages/${this.profile.Driver_id}/messages`), {
+  return await addDoc(collection(this.firestore, `Messages/${this.profile.Rider_id}/messages`), {
     msg: msg,
     from: this.auth.currentUser.uid,
     createdAt: serverTimestamp(),
     myMsg: true,
-    fromName: this.profile.Driver_name
+    fromName: this.profile.Rider_name
   });
 }
 
-
 async updateMessageInfo(){
-  return await setDoc(doc(this.firestore, `Messages/${this.profile.Driver_id}`),
+  return await setDoc(doc(this.firestore, `Messages/${this.profile.Rider_id}`),
   {
     name: this.profile.Rider_name,
     id: this.profile.Rider_id,
@@ -444,14 +481,31 @@ async createCard(name, number, type, id) {
       id: id,
       selected: true
     };
-    await setDoc(doc(this.firestore, "Drivers",  `${this.auth.currentUser.uid}/Cards/${name}`), { ...loc});
+    await setDoc(doc(this.firestore, "Riders",  `${this.profile.Rider_id}/Cards/${name}`), { ...loc});
     return true;
   } catch (e) {
     alert(e)
     return null;
   }
+
   
 }
+
+
+
+async updateDriverOnlineState(ID) {
+  try {
+    const userDocRef = doc(this.firestore, 'Drivers', ID)
+    await updateDoc(userDocRef, {
+      onlineState: true,
+    });
+    return true;
+  } catch (e) {
+    alert(e)
+    return null;
+  }
+}
+
 
 async updateCArd(name, number, type, id, state) {
   try {
@@ -462,7 +516,7 @@ async updateCArd(name, number, type, id, state) {
       id: id,
       selected: state
     };
-    await updateDoc(doc(this.firestore, "Drivers",  `${this.profile.Rider_id}/Cards/${name}`), { ...loc});
+    await updateDoc(doc(this.firestore, "Riders",  `${this.profile.Rider_id}/Cards/${name}`), { ...loc});
     return true;
   } catch (e) {
     alert(e)
@@ -471,50 +525,5 @@ async updateCArd(name, number, type, id, state) {
 
 }
 
-
-async updateOnlineState(state) {
-  try {
-    const userDocRef = doc(this.firestore, 'Drivers', `/${this.auth.currentUser.uid}/`)
-    await updateDoc(userDocRef, {
-      onlineState: state,
-    });
-    return true;
-  } catch (e) {
-    alert(e)
-    return null;
-  }
-}
-
-
-async updateEarnings(value) {
-  try {
-    const userDocRef = doc(this.firestore, 'Drivers', `/${this.auth.currentUser.uid}/`)
-    await updateDoc(userDocRef, {
-      Earnings: value,
-    });
-    return true;
-  } catch (e) {
-    alert(e)
-    return null;
-  }
-}
-
-async createDocument(name, type, id, image, text) {
-  try {
-    const loc: docs = {
-      name: name,
-      type: type,
-      id: id,
-      image: image,
-      text: text
-    };
-    await setDoc(doc(this.firestore, "Drivers",  `${this.auth.currentUser.uid}/Documents/${name}`), { ...loc});
-    return true;
-  } catch (e) {
-    alert(e)
-    return null;
-  }
-
-}
 
 }
