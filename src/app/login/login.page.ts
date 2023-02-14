@@ -48,9 +48,9 @@ export class LoginPage implements OnInit {
     if (!isPlatform('capacitor')){
       GoogleAuth.initialize();
      }
-     let country = 'Nigeria'
-     this.CountryCode = '+1'
-     this.numberT = '+1'
+    let country = 'Nigeria'
+     this.CountryCode = '+234'
+     this.numberT = '+234'
   }
 
   async HideSplash()
@@ -61,10 +61,12 @@ export class LoginPage implements OnInit {
   
 
   async ngOnInit() {
-  
+    
+   
+   
     this.form = new FormGroup({
       phone: new FormControl(null, {
-        validators: [Validators.required, Validators.minLength(10), Validators.maxLength(10)]
+        validators: [Validators.required, Validators.minLength(0), Validators.maxLength(20)]
       }),
     });
 
@@ -80,12 +82,12 @@ export class LoginPage implements OnInit {
 
   async Show(){
     await StatusBar.setOverlaysWebView({ overlay: false });
-   
+    // StatusBar.setStyle({ style: Style.Light });
   }
 
   async Hide(){
     await StatusBar.setOverlaysWebView({ overlay: true });
-   
+    // StatusBar.setStyle({ style: Style.Light });
   }
 
 
@@ -111,13 +113,17 @@ export class LoginPage implements OnInit {
       const modal = this.modalCtrl.create(options);
       (await modal).present();
       const data: any = (await modal).onWillDismiss();
-      this.authY.onAuthStateChanged(async (user)=>{
-        if (!user){
-       this.router.navigateByUrl('details'); 
-        }else{
-          this.router.navigateByUrl('home'); 
-        }  
+      const buf = this.authY.onAuthStateChanged(async (user)=>{
+        this.avatar.getUserProfile(user).subscribe(async (data) => {
+        if (!data){
+       this.router.navigateByUrl('details');   
        this.overlay.hideLoader();
+        }else{
+          this.router.navigateByUrl('tabs');   
+       this.overlay.hideLoader();
+        }
+        })
+        buf();
       })
        console.log(data);
     } catch(e) {
@@ -127,42 +133,6 @@ export class LoginPage implements OnInit {
     }
   }
 
-  async loginWithGoogle(){
-
-    try {
-
-     this.approve = true;
-
-     let googleUser = await GoogleAuth.signIn();
-   
-     const credential = GoogleAuthProvider.credential(googleUser.authentication.idToken);
-
-     const sToken = await signInWithCredential(this.authY, credential);
-     if (sToken.user.phoneNumber){
-     const result = await this.avatar.createUser(sToken.user.displayName, sToken.user.email, sToken.user.photoURL || '', sToken.user.phoneNumber|| 94909220, this.authY.currentUser.uid)
-     await this.avatar.createCard('Cash', 0, 'cash', 'None')
-     this.router.navigateByUrl('home');
-     }else{
-      await deleteUser(this.authY.currentUser)
-      let navigationExtras: NavigationExtras = {
-        queryParams: {
-            details: sToken,
-        }
-     };
-      this.nav.navigateForward('phone-detail', navigationExtras);
-     }
-
-
-     console.log(sToken);
-    
-      
-      this.approve = false;
-
-  } catch(e) {
-    this.overlay.showAlert('Error', JSON.stringify(e));
-    this.approve = false;
-  }
-
-  }
+ 
 
 }

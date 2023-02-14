@@ -39,24 +39,16 @@ export class SupportPage implements OnInit {
       }
   })
 
-
-  
-
-}
-
-  
-
-
-   
+  }
 
   async Show(){
     await StatusBar.setOverlaysWebView({ overlay: false });
-   
+  
   }
 
   async Hide(){
     await StatusBar.setOverlaysWebView({ overlay: true });
-   
+  
   }
 
   ngOnInit(){}

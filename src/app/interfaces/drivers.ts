@@ -18,6 +18,12 @@ export interface Drivers {
     stop: boolean;
     intransit: boolean;
     cancel: boolean;
-    time: any
+    Driver_num_rides: number;
+    Document: string;
+    Driver_email: string;
+    Driver_phone:number;
+    onlineState: boolean;
+    Earnings: number;
+    Approved: boolean
 
 }

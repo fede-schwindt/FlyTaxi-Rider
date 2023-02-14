@@ -1,10 +1,9 @@
 import { Component, NgZone } from '@angular/core';
-import { NavController, Platform, IonicModule } from '@ionic/angular';
+import { NavController, Platform } from '@ionic/angular';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { AvatarService } from './services/avatar.service';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { timer } from 'rxjs';
-import { Auth } from '@angular/fire/auth';
 
 
 @Component({
@@ -20,30 +19,18 @@ export class AppComponent {
     { title: 'Support', url: 'support', icon: 'chatbubbles', color: 'primary' },
     { title: 'About', url: 'about', icon: 'information-circle', color: 'primary' },
   ];
-  source: string;
-  user: import("@angular/fire/auth").User;
-  constructor(public avatar: AvatarService, private auth: Auth, private platform: Platform, private nav: NavController) {
+  auth: any;
+  constructor(public avatar: AvatarService, private platform: Platform, private nav: NavController) {
     this.initialize()
-
   }
 
   async initialize() {
     
     this.platform.ready().then(async (readySource) => {
-      this.auth.onAuthStateChanged(async (user)=>{
-      console.log(user);
-      this.user = user;
-      this.source = readySource
+      console.log('Platform ready from', readySource);
      
-      if (readySource != 'dom'){
-      await StatusBar.setBackgroundColor({color: '#3880ff'})
-      }
+      await StatusBar.setBackgroundColor({color: '#5238ff'})
       await this.LoadSplash();
-      
-
-    })
-
-    
 
       });
   }
@@ -51,9 +38,7 @@ export class AppComponent {
   async LoadSplash(){
     await SplashScreen.show();
 
-    if (this.source != 'dom')
     await StatusBar.setOverlaysWebView({ overlay: true });
-
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
 
     // Listen for changes to the prefers-color-scheme media query
@@ -61,10 +46,8 @@ export class AppComponent {
  
      this.toggleDarkTheme(prefersDark.matches);
 
-     if (this.source != 'dom')
     await StatusBar.setOverlaysWebView({ overlay: true });
   }
-
 
   toggleDarkTheme(shouldAdd) {
     if (shouldAdd){
@@ -83,5 +66,4 @@ export class AppComponent {
   }
 
   
-
 }

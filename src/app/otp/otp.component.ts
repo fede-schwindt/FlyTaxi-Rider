@@ -59,7 +59,8 @@ export class OtpComponent implements OnInit {
       const response = await this.auth.verifyOtp(this.otp);
       this.modalCtrl.dismiss(response);
     } catch(e) {
-      console.log(e);
+      this.overlay.hideLoader();
+      this.overlay.showAlert('Check code', e);
     }
   }
 

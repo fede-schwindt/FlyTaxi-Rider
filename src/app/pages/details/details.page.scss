@@ -1,42 +1,60 @@
 
-ion-footer {
-    ion-row {
-        background: transparent;
-        display: block;
-        ion-fab-button {
-            margin-right: 2.5vh;
-        }
-        ion-list {
-            // border-radius: 20px 20px 0 0;
-            //   padding-bottom: 8vh;
-            ion-list-header {
-                ion-label {
-                    font-weight: bold;
-                    font-size: 1.8rem;
-                }
-            }
-            ion-input, ion-text {
-                font-size: 1rem;
-                font-weight: bold;
-            }
-
-        .error {
-            font-size: 0.75em !important;
-        }
-        }
-    }
-}
-
-ion-toolbar, ion-header{
- 
-  height: 44px;
-}
 
 ion-img{
   margin: auto;
   width: auto;
 }
+ion-avatar {
+    width: 128px;
+    height: 128px;
+   
+  }
+  
+  .preview {
+    margin-top: 50px;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .fallback {
+    width: 128px;
+    height: 128px;
+    border-radius: 50%;
+    background: #bfbfbf;
+  
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 500;
+  }
+ 
+  
+  #container {
+    text-align: center;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  
+  #container strong {
+    font-size: 20px;
+    line-height: 26px;
+  }
+  
+  #container p {
+    font-size: 16px;
+    line-height: 22px;
+    color: #8c8c8c;
+    margin: 0;
+  }
+  
+  #container a {
+    text-decoration: none;
+  }
 
-ion-slides {
-  height: 440px;
-}
+
+
+  
+  
